@@ -1,0 +1,415 @@
+{
+  "name": "PromptEngineering",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Create Knowledge Base",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Knowledge_Label",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -200,
+        20
+      ],
+      "id": "143a6ad2-d7ca-4730-9a9d-2d0a2499dafc",
+      "name": "On form submission",
+      "webhookId": "91ea876f-35ef-45c4-8dad-1f0200b46698",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Knowledge_Label",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        20,
+        20
+      ],
+      "id": "6c243678-d5d9-48a6-be9b-5967232ecc06",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "promptengineeering",
+          "mode": "list",
+          "cachedResultName": "promptengineeering"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        260,
+        20
+      ],
+      "id": "deee24c7-84fc-4a91-9d14-1a645605e472",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "jZ7q12iTvIsLSl9U",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        380,
+        240
+      ],
+      "id": "29b3075b-7538-4adb-82b5-90dd60700baa",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        480,
+        460
+      ],
+      "id": "930f990f-1bfd-4d70-b2f4-502e1c9219c2",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        120,
+        260
+      ],
+      "id": "e0390673-2449-415a-ad9e-b69bc9c5e6d0",
+      "name": "Embeddings HuggingFace Inference",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "2US56TRQKNTv6eFi",
+          "name": "HuggingFaceApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "={{ $json.body.prompt }}",
+        "options": {
+          "systemMessage": "=You are a Senior Global Prompt Engineer, a world‑class expert in designing and optimizing prompts for advanced generative AI systems (text and image), with deep experience across domains and\n  modalities. You leverage Retrieval‑Augmented Generation (RAG) to proactively retrieve and integrate relevant knowledge, examples, and contexts, continuously learning and adapting to new data and\n  feedback. Your mission is to craft and execute prompts that maximize output quality, creativity, and factual accuracy.\n\n\n  You will receive two inputs:\n   1. prompt: The user's raw text.\n   2. algorithm: The chosen processing method, which will be either 'Primer' or 'Mastermind' -> {{ $json.body.algorithm }}\n\n\n  When processing each user input, follow these rules:\n\n  Language Matching\n  Always respond in the same language used by the user.\n\n\n  Sanitize Input\n  Remove any literal \\n sequences from the user’s text before further processing.\n\n\n  Empty Input Check\n  If the input is empty or meaningless, return exactly:\n  ⚠️ No input detected. Please provide a prompt to optimize.\n\n  Processing Workflow based on Algorithm\n  Your action depends entirely on the algorithm provided:\n\n\n   * If `algorithm` is 'Primer' (Simple Request):\n      Directly refine the user’s text into a clean, detailed, and stylistically rich prompt. Do not perform any retrieval steps.\n\n\n   * If `algorithm` is 'Mastermind' (Complex Request):\n      Execute the full Retrieval-Augmented Generation (RAG) workflow:\n       1. Formulate Search: Generate effective keywords/queries from the sanitized input.\n       2. Query Vector Store: Retrieve the top 3–5 relevant documents or examples from your embedding.\n       3. Summarize & Synthesize: Extract key patterns, styles, or facts from the retrieved documents.\n       4. Integrate into Prompt: Weave those insights into a single, cohesive, ready‑to‑use prompt.\n\n\n  Final Output Only\n  Only return the optimized prompt itself—no intros (“Here’s the prompt…”), no explanations, no advice.\n  Ensure the prompt is production‑ready for any advanced generative model."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1300,
+        140
+      ],
+      "id": "66732008-f7bf-4a4b-87dd-3ff465175458",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "ce nœud se connecte à la base de connaissances de notre entreprise. Toujours repondre en francais",
+        "topK": "=10"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        1520,
+        380
+      ],
+      "id": "f450b346-30e9-4321-b1cf-046df4d99665",
+      "name": "Answer questions with a vector store"
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "promptengineeering",
+          "mode": "list",
+          "cachedResultName": "promptengineeering"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.2,
+      "position": [
+        1260,
+        580
+      ],
+      "id": "da532356-3c22-4cce-a043-d3be9d3d9d42",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "jZ7q12iTvIsLSl9U",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        740
+      ],
+      "id": "f7c8a4b3-94a8-4a23-870b-b2813b22f2b7",
+      "name": "Embeddings HuggingFace Inference1",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "2US56TRQKNTv6eFi",
+          "name": "HuggingFaceApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1-0528:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        340
+      ],
+      "id": "3e4a7ae9-3727-4b3f-bf64-ccac25bce5b2",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "DBNPXUOlXS714UWV",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1-0528:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        560
+      ],
+      "id": "1f3c4dd3-a5b5-47b0-9d1a-0e5b2cf3fc94",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "DBNPXUOlXS714UWV",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "prompt-optimizer",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        140
+      ],
+      "id": "568af766-1146-48fa-a3cd-f397e0007a9e",
+      "name": "Webhook",
+      "webhookId": "9a0cf31d-cd27-4749-b29f-143cb0222da0"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"improvedPrompt\": \"{{ $json.output }}\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1680,
+        140
+      ],
+      "id": "35c7e6ad-8af4-45c7-8399-b9206e0a473d",
+      "name": "Respond to Webhook1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings HuggingFace Inference": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer questions with a vector store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings HuggingFace Inference1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "main": [
+        []
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "59f5cd3c-41da-43ce-9e80-cea2bbe0df7c",
+  "meta": {
+    "instanceId": "ba50717b6ef25c8fd4e49fb59d8669ee8906488b52e7ccc353f98c58377f55b6"
+  },
+  "id": "DtDPnGcDxEWShHKb",
+  "tags": []
+}
