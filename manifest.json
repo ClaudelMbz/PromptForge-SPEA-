@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "PromptForge",
+  "version": "1.0",
+  "author": "Claudel MUBENZEM",
+  "description": "Supercharge your LLM prompts. PromptForge helps you to optimize your prompts for better results ___ by Claudel MUBENZEM \n ",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "*://*.chatgpt.com/*",
+    "https://claude.ai/*",
+    "https://gemini.google.com/*",
+    "https://chat.deepseek.com/*",
+    "https://jackdales.app.n8n.cloud/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chat.openai.com/*", "*://*.chatgpt.com/*", "https://gemini.google.com/*", "https://chat.deepseek.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
