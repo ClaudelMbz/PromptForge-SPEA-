@@ -1,0 +1,446 @@
+{
+  "name": "RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "collection",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "3ef0579b-4ff2-4192-86cb-65b928296550",
+      "name": "Qdrant Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "position": [
+        368,
+        112
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "qdrantApi": {
+          "id": "WlNHe6MjYh4dsSbR",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "id": "aa1d5dd9-6eda-466b-a36b-b30927dbf552",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        512,
+        320
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "chunkSize": 200,
+        "chunkOverlap": 50,
+        "options": {}
+      },
+      "id": "d296eec7-cbcc-4daa-8659-630e0032c164",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        608,
+        544
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Data Ingestion\n**Add data to the semantic database",
+        "height": 700,
+        "width": 840,
+        "color": 3
+      },
+      "id": "7ae0ddad-842d-4437-8c74-c29810ac78a1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "formTitle": "Add your file here",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "File",
+              "fieldType": "file",
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3086a739-3a00-4bbf-b89e-8f75b3ab813b",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        144,
+        112
+      ],
+      "webhookId": "4e1e20d4-f759-42c8-8439-87b93f43aa7c",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "model": "deepseek-llm:7b-base"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        368,
+        384
+      ],
+      "id": "d083c3a5-c69d-4720-a9aa-136486e73947",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "WvmnwFCv7KXc5fTG",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.prompt }}",
+        "options": {
+          "systemMessage": "=systemMessage\": \"You are a Senior Global Prompt Engineer, a world‑class expert in designing and optimizing prompts for advanced generative AI systems (text and image), with deep experience across domains and\\n  modalities. You leverage Retrieval‑Augmented Generation (RAG) to proactively retrieve and integrate relevant knowledge, examples, and contexts, continuously learning and adapting to new data and\\n  feedback. Your mission is to craft and execute prompts that maximize output quality, creativity, and factual accuracy.\\n\\n\\n  You will receive two inputs:\\n   1. prompt: The user's raw text.\\n   2. algorithm: The chosen processing method, which will be either 'Primer' or 'Mastermind' -> \\n\\n\\n  When processing each user input, follow these rules:\\n\\n  Language Matching\\n  Always respond in the same language used by the user.\\n\\n\\n  Sanitize Input\\n  Remove any literal \\\\n sequences from the user’s text before further processing.\\n\\n\\n  Empty Input Check\\n  If the input is empty or meaningless, return exactly:\\n  ⚠️ No input detected. Please provide a prompt to optimize.\\n\\n  Processing Workflow based on Algorithm\\n  Your action depends entirely on the algorithm provided:\\n\\n\\n   * If `algorithm` is 'Primer' (Simple Request):\\n      Directly refine the user’s text into a clean, detailed, and stylistically rich prompt. Do not perform any retrieval steps.\\n\\n\\n   * If `algorithm` is 'Mastermind' (Complex Request):\\n      Execute the full Retrieval-Augmented Generation (RAG) workflow:\\n       1. Formulate Search: Generate effective keywords/queries from the sanitized input.\\n       2. Query Vector Store: Retrieve the top 3–5 relevant documents or examples from your embedding.\\n       3. Summarize & Synthesize: Extract key patterns, styles, or facts from the retrieved documents.\\n       4. Integrate into Prompt: Weave those insights into a single, cohesive, ready‑to‑use prompt.\\n\\n\\n  Final Output Only\\n  Only return the optimized prompt itself—no intros (“Here’s the prompt…”), no explanations, no advice.\\n  Ensure the prompt is production‑ready for any advanced generative model.\nALWATYS IN MASTERMIND. OPTIMIZE PROMPTS NOT ANSWER TO THEM. NO SUGGESTIONS \nIMPORTANT: Respond only in strict JSON format, without explanations or unnecessary line breaks. The output must be valid JSON. Never Never put \"\"\n"
+        }
+      },
+      "id": "84bc8c8d-e276-42e9-b90b-08a0d062fbf4",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1344,
+        112
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "retriever",
+        "toolDescription": "Retrieve data from a semantic database to answer questions",
+        "qdrantCollection": {
+          "__rl": true,
+          "mode": "id",
+          "value": "rag_collection"
+        },
+        "options": {}
+      },
+      "id": "fc9cfdaf-4ef3-4021-9172-034d88d38fa5",
+      "name": "Qdrant Vector Store1",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "position": [
+        1600,
+        368
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "qdrantApi": {
+          "id": "WlNHe6MjYh4dsSbR",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek-llm:7b-base"
+      },
+      "id": "b5b98812-77de-45ab-a4d6-149f03d13f1e",
+      "name": "Embeddings Ollama1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "position": [
+        1520,
+        560
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "ollamaApi": {
+          "id": "WvmnwFCv7KXc5fTG",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## RAG Chatbot\n**Chat with your data",
+        "height": 700,
+        "width": 1536,
+        "color": 4
+      },
+      "id": "a2e95f72-2bc0-4979-87b3-9360a770e0a4",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        0
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        352
+      ],
+      "id": "1123c9d7-7294-4f6f-95c8-94706503896e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fect2dtnRGwO0pYC",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "pgvector-local",
+        "contextWindowLength": 100
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1440,
+        352
+      ],
+      "id": "003a56a5-2653-4c1d-aaa4-f16947560c34",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "jyibO5JbCxvijTUE",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "prompt-optimizer",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        112
+      ],
+      "id": "c01ed179-01a3-4967-8392-1727956e20ef",
+      "name": "Webhook",
+      "webhookId": "9a0cf31d-cd27-4749-b29f-143cb0222da0"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"improvedPrompt\": \"{{ $json.improvedPrompt }}\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2128,
+        112
+      ],
+      "id": "29a151f6-03dd-4e1d-9743-3620aed1627d",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    improvedPrompt: $input.first().json.improvedPrompt\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        112
+      ],
+      "id": "56fa07e4-7f02-41a8-9fcc-5f0edf5c1d46",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node - robust cleaner & debug info + replace \" by '\nconst raw = $input.first().json.output ?? $input.first().json.improvedPrompt ?? '';\n\n// sanitizer\nfunction sanitizeString(s) {\n  if (typeof s !== 'string') return s;\n  return s\n    .replace(/\\*\\*/g, '')              // remove markdown bold\n    .replace(/\\r?\\n+/g, ' ')           // replace newlines with single space\n    .replace(/[\\x00-\\x1F\\x7F]+/g, '')  // remove control chars\n    .replace(/\\s{2,}/g, ' ')           // collapse spaces\n    .replace(/\"/g, \"'\")                 // replace all \" by '\n    .trim();\n}\n\nfunction sanitizeRecursive(value) {\n  if (typeof value === 'string') return sanitizeString(value);\n  if (Array.isArray(value)) return value.map(sanitizeRecursive);\n  if (value && typeof value === 'object') {\n    const out = {};\n    for (const k of Object.keys(value)) out[k] = sanitizeRecursive(value[k]);\n    return out;\n  }\n  return value;\n}\n\n// If agent returned an obvious error marker, capture debug info\nconst trimmed = String(raw).trim();\nif (trimmed === '[invalid syntax]') {\n  return [{\n    json: {\n      improvedPrompt: '',            \n      debugRaw: raw,\n      error: '[invalid syntax] received from agent'\n    }\n  }];\n}\n\n// If looks like JSON, try parse and clean recursively\ntry {\n  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {\n    const parsed = JSON.parse(raw);\n    const cleanedObj = sanitizeRecursive(parsed);\n    // if parsed object already contains improvedPrompt, return it\n    if (cleanedObj && typeof cleanedObj === 'object' && cleanedObj.improvedPrompt) {\n      return [{ json: cleanedObj }];\n    }\n    // otherwise wrap cleaned object into a string for improvedPrompt\n    return [{ json: { improvedPrompt: JSON.stringify(cleanedObj).replace(/\"/g, \"'\") } }];\n  }\n} catch (e) {\n  // fall through to string sanitization\n}\n\n// Default: sanitize as plain string\nconst cleaned = sanitizeString(String(raw));\nreturn [{ json: { improvedPrompt: cleaned, debugRaw: raw } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        112
+      ],
+      "id": "04b1fdb5-16aa-4190-815d-988984092f85",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "659cee9d-963b-4440-928b-3ade6a9f5c23",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e856f94247bf6e3bff9190e7325bb01d984e5b30cfd4e714458410020bc47d08"
+  },
+  "id": "v2O5v8HUk6pFMaDA",
+  "tags": []
+}
