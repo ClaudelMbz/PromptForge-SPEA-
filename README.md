@@ -45,7 +45,9 @@ To install and use PromptForge, you can load it as an unpacked extension in a Ch
     - Click the "Load unpacked" button.
     - Select the folder where you extracted the PromptForge source code (the one containing `manifest.json`).
 5.  **Ready to Go:** The PromptForge extension should now be installed and active. Visit one of the [supported platforms](#-supported-platforms) to see it in action!
-6.  **n8n + Ollama + Postgres :**https://youtu.be/qqjzohCle48?si=6u5lP_zX74BB3Oxx
+6.  **n8n + Ollama + Postgres + Qdrant :**https://youtu.be/qqjzohCle48?si=6u5lP_zX74BB3Oxx
+7.  **Use RAG.json for BackEnd connected with the Chrome Extension
+
 
 ## 📬 Contact
 
